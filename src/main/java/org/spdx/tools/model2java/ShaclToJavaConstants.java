@@ -70,22 +70,57 @@ public class ShaclToJavaConstants {
 	public static final String TEST_MODEL_INFO_TEMPLATE = "TestModelInfoTemplate.txt";
 	public static final String INVALID_LICENSE_EXPRESSION_TEMPLATE = "InvalidLicenseExpressionTemplate.txt";
 	
+	/**
+	 * XSD integer types whose value space fits in a Java Integer
+	 */
+	public static Set<String> BOUNDED_INTEGER_TYPES = new HashSet<>();
+	static {
+		BOUNDED_INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#byte");
+		BOUNDED_INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#int");
+		BOUNDED_INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#short");
+		BOUNDED_INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#unsignedShort");
+		BOUNDED_INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#unsignedByte");
+	}
+
+	/**
+	 * XSD integer types whose value space does not fit in a Java Integer - mapped to BigInteger
+	 */
+	public static Set<String> BIG_INTEGER_TYPES = new HashSet<>();
+	static {
+		BIG_INTEGER_TYPES.add(XSD_POSITIVE_INTEGER);
+		BIG_INTEGER_TYPES.add(XSD_NON_NEGATIVE_INTEGER);
+		BIG_INTEGER_TYPES.add(XSD_INTEGER);
+		BIG_INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#long");
+		BIG_INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#negativeInteger");
+		BIG_INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#nonPositiveInteger");
+		BIG_INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#unsignedLong");
+		BIG_INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#unsignedInt");
+	}
+
 	public static Set<String> INTEGER_TYPES = new HashSet<>();
 	static {
-		INTEGER_TYPES.add(XSD_POSITIVE_INTEGER);
-		INTEGER_TYPES.add(XSD_NON_NEGATIVE_INTEGER);
-		INTEGER_TYPES.add(XSD_INTEGER);
-		INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#byte");
-		INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#int");
-		INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#long");
-		INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#negativeInteger");
-		INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#nonPositiveInteger");
-		INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#positiveInteger");
-		INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#short");
-		INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#unsignedLong");
-		INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#unsignedInt");
-		INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#unsignedShort");
-		INTEGER_TYPES.add("http://www.w3.org/2001/XMLSchema#unsignedByte");
+		INTEGER_TYPES.addAll(BOUNDED_INTEGER_TYPES);
+		INTEGER_TYPES.addAll(BIG_INTEGER_TYPES);
+	}
+
+	/**
+	 * Value space bounds { min, max } of the XSD integer types - null for no bound
+	 */
+	public static Map<String, String[]> INTEGER_TYPE_BOUNDS = new HashMap<>();
+	static {
+		INTEGER_TYPE_BOUNDS.put(XSD_INTEGER, new String[] {null, null});
+		INTEGER_TYPE_BOUNDS.put(XSD_NON_NEGATIVE_INTEGER, new String[] {"0", null});
+		INTEGER_TYPE_BOUNDS.put(XSD_POSITIVE_INTEGER, new String[] {"1", null});
+		INTEGER_TYPE_BOUNDS.put("http://www.w3.org/2001/XMLSchema#nonPositiveInteger", new String[] {null, "0"});
+		INTEGER_TYPE_BOUNDS.put("http://www.w3.org/2001/XMLSchema#negativeInteger", new String[] {null, "-1"});
+		INTEGER_TYPE_BOUNDS.put("http://www.w3.org/2001/XMLSchema#long", new String[] {"-9223372036854775808", "9223372036854775807"});
+		INTEGER_TYPE_BOUNDS.put("http://www.w3.org/2001/XMLSchema#int", new String[] {null, null}); // the Java Integer range
+		INTEGER_TYPE_BOUNDS.put("http://www.w3.org/2001/XMLSchema#short", new String[] {"-32768", "32767"});
+		INTEGER_TYPE_BOUNDS.put("http://www.w3.org/2001/XMLSchema#byte", new String[] {"-128", "127"});
+		INTEGER_TYPE_BOUNDS.put("http://www.w3.org/2001/XMLSchema#unsignedLong", new String[] {"0", "18446744073709551615"});
+		INTEGER_TYPE_BOUNDS.put("http://www.w3.org/2001/XMLSchema#unsignedInt", new String[] {"0", "4294967295"});
+		INTEGER_TYPE_BOUNDS.put("http://www.w3.org/2001/XMLSchema#unsignedShort", new String[] {"0", "65535"});
+		INTEGER_TYPE_BOUNDS.put("http://www.w3.org/2001/XMLSchema#unsignedByte", new String[] {"0", "255"});
 	}
 
 	public static Set<String> DOUBLE_TYPES = new HashSet<>();

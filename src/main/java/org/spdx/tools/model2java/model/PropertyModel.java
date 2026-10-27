@@ -35,6 +35,10 @@ public class PropertyModel extends BaseModel {
     private String pattern;
     private String min;
     private String max;
+    private String minValue; // Java expression for min, for integer properties
+    private String maxValue; // Java expression for max, for integer properties
+    private String testValue; // Java expressions for test values, for integer properties
+    private String testValue2;
     private boolean hasConstraint;
     private String uri;
     private String propertyConstant;
@@ -141,6 +145,30 @@ public class PropertyModel extends BaseModel {
     }
     public void setMax(String max) {
         this.max = max;
+    }
+    public String getMinValue() {
+        return minValue;
+    }
+    public void setMinValue(String minValue) {
+        this.minValue = minValue;
+    }
+    public String getMaxValue() {
+        return maxValue;
+    }
+    public void setMaxValue(String maxValue) {
+        this.maxValue = maxValue;
+    }
+    public String getTestValue() {
+        return testValue;
+    }
+    public void setTestValue(String testValue) {
+        this.testValue = testValue;
+    }
+    public String getTestValue2() {
+        return testValue2;
+    }
+    public void setTestValue2(String testValue2) {
+        this.testValue2 = testValue2;
     }
     public boolean isHasConstraint() {
         return hasConstraint;

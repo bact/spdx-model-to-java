@@ -23,6 +23,7 @@ import org.spdx.tools.model2java.model.*;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.math.BigInteger;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
@@ -921,6 +922,9 @@ public class SpecVersionContainer implements Comparable<SpecVersionContainer> {
             for (PropertyModel propertyMap:entry.getValue().values()) {
                 propertiesForType.add(propertyMap);
                 String typeUri = propertyMap.getTypeUri();
+                if ("BigInteger".equals(propertyMap.getType())) {
+                    requiredImports.add("import java.math.BigInteger;");
+                }
                 if (PropertyModel.PropertyType.ENUM.equals(entry.getKey()) || PropertyModel.PropertyType.OBJECT.equals(entry.getKey()) ||
                         PropertyModel.PropertyType.OBJECT_COLLECTION.equals(entry.getKey()) ||
                         PropertyModel.PropertyType.ENUM_COLLECTION.equals(entry.getKey()) ||
@@ -1503,6 +1507,9 @@ public class SpecVersionContainer implements Comparable<SpecVersionContainer> {
             type = "Boolean";
         } else if (ShaclToJavaConstants.STRING_TYPE.equals(typeUri) || ShaclToJavaConstants.DATE_TIME_TYPE.equals(typeUri)) {
             type = "String";
+        } else if (ShaclToJavaConstants.BIG_INTEGER_TYPES.contains(typeUri)) {
+            type = "BigInteger";
+            requiredImports.add("import java.math.BigInteger;");
         } else if (ShaclToJavaConstants.INTEGER_TYPES.contains(typeUri)) {
             type = "Integer";
         } else if (ShaclToJavaConstants.DOUBLE_TYPES.contains(typeUri)) {
@@ -1546,19 +1553,28 @@ public class SpecVersionContainer implements Comparable<SpecVersionContainer> {
             retval.setPattern(pattern);
             hasConstraint = true;
         }
+        String[] integerBounds = ShaclToJavaConstants.INTEGER_TYPE_BOUNDS.get(typeUri);
         if (Objects.nonNull(minStringLength)) {
             retval.setMin(minStringLength.toString());
             hasConstraint = true;
-        } else if (ShaclToJavaConstants.XSD_NON_NEGATIVE_INTEGER.equals(typeUri)) {
-            retval.setMin("0");
-            hasConstraint = true;
-        } else if (ShaclToJavaConstants.XSD_POSITIVE_INTEGER.equals(typeUri)) {
-            retval.setMin("1");
+        } else if (Objects.nonNull(integerBounds) && Objects.nonNull(integerBounds[0])) {
+            retval.setMin(integerBounds[0]);
+            retval.setMinValue(integerLiteral(type, integerBounds[0]));
             hasConstraint = true;
         }
         if (Objects.nonNull(maxStringLength)) {
             retval.setMax(maxStringLength.toString());
             hasConstraint = true;
+        } else if (Objects.nonNull(integerBounds) && Objects.nonNull(integerBounds[1])) {
+            retval.setMax(integerBounds[1]);
+            retval.setMaxValue(integerLiteral(type, integerBounds[1]));
+            hasConstraint = true;
+        }
+        if (Objects.nonNull(integerBounds)) {
+            // for BigInteger, test values beyond the Integer range
+            boolean big = "BigInteger".equals(type);
+            retval.setTestValue(integerLiteral(type, integerTestValue(big ? "21474836480" : "55", integerBounds)));
+            retval.setTestValue2(integerLiteral(type, integerTestValue(big ? "21474836481" : "653", integerBounds)));
         }
         if (Objects.nonNull(pattern)) {
             requiredImports.add("import java.util.regex.Pattern;");
@@ -1585,6 +1601,34 @@ public class SpecVersionContainer implements Comparable<SpecVersionContainer> {
      */
     private String propertyNameToPropertyConstant(String propName, String namespaceName) {
         return   "PROP_" + camelCaseToConstCase(propName);
+    }
+
+    /**
+     * @param type Java type of the property - Integer or BigInteger
+     * @param value integer value
+     * @return Java expression for the value
+     */
+    private static String integerLiteral(String type, String value) {
+        return "BigInteger".equals(type) ? "new BigInteger(\"" + value + "\")" : "Integer.valueOf(" + value + ")";
+    }
+
+    /**
+     * @param candidate preferred test value, positive
+     * @param bounds { min, max } of the value space - null for no bound
+     * @return the candidate, negated if the value space has no positive values, and limited to the bounds
+     */
+    private static String integerTestValue(String candidate, String[] bounds) {
+        BigInteger value = new BigInteger(candidate);
+        if (Objects.nonNull(bounds[1]) && new BigInteger(bounds[1]).signum() <= 0) {
+            value = value.negate();
+        }
+        if (Objects.nonNull(bounds[0]) && value.compareTo(new BigInteger(bounds[0])) < 0) {
+            value = new BigInteger(bounds[0]);
+        }
+        if (Objects.nonNull(bounds[1]) && value.compareTo(new BigInteger(bounds[1])) > 0) {
+            value = new BigInteger(bounds[1]);
+        }
+        return value.toString();
     }
 
     /**

@@ -310,7 +310,7 @@ public class TestValuesGenerator {
 	{{/classesForBuilders}}
 
 	{{#integerProperties}}
-	public static final Integer {{{propertyNameUpper}}}_TEST_VALUE = 55;
+	public static final {{{type}}} {{{propertyNameUpper}}}_TEST_VALUE = {{{testValue}}};
 	{{/integerProperties}}
 	{{#doubleProperties}}
 	public static final Double {{{propertyNameUpper}}}_TEST_VALUE = 55.1;

@@ -98,6 +98,41 @@ public class JavaCodeGeneratorTest  extends TestCase {
         }
     }
 
+    public void testUnboundedIntegerTypes() throws IOException, ShaclToJavaException, InvocationTargetException, IllegalAccessException {
+        File tempDir = Files.createTempDirectory("spdx_test").toFile();
+        try {
+            try (InputStream is = new FileInputStream(MODEL_FILE_PATH)) {
+                OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
+                model.read(is, "", "Turtle");
+                SpecVersionContainer svc301 = new SpecVersionContainer(model, "3.0.1");
+                JavaCodeGenerator jcg = new JavaCodeGenerator(new ArrayList<>(List.of(svc301)));
+                List<String> warnings = jcg.generate(tempDir);
+                assertTrue(warnings.isEmpty());
+                Path v3Path = tempDir.toPath().resolve("src")
+                        .resolve("main")
+                        .resolve("java")
+                        .resolve("org")
+                        .resolve("spdx")
+                        .resolve("library")
+                        .resolve("model")
+                        .resolve("v3");
+                // xsd:nonNegativeInteger
+                String dataset = Files.readString(v3Path.resolve("dataset").resolve("DatasetPackage.java"));
+                assertTrue(dataset.contains("import java.math.BigInteger;"));
+                assertTrue(dataset.contains("public Optional<BigInteger> getDatasetSize()"));
+                assertTrue(dataset.contains("getBigIntegerPropertyValue(SpdxConstantsV3.PROP_DATASET_SIZE)"));
+                assertTrue(dataset.contains("datasetSize.compareTo(new BigInteger(\"0\")) < 0"));
+                // xsd:positiveInteger
+                String range = Files.readString(v3Path.resolve("core").resolve("PositiveIntegerRange.java"));
+                assertTrue(range.contains("public @Nullable BigInteger getBeginIntegerRange()"));
+                assertTrue(range.contains("beginIntegerRange.compareTo(new BigInteger(\"1\")) < 0"));
+                assertFalse(range.contains("Integer> getIntegerPropertyValue"));
+            }
+        } finally {
+            assertTrue(deleteDirectory(tempDir));
+        }
+    }
+
     /**
      * @param tempDir directory to delete
      */

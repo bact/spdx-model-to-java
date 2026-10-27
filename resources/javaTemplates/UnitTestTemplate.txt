@@ -232,12 +232,12 @@ public class {{{className}}}Test extends TestCase {
 		{{^nonOptional}}
 		assertEquals(Optional.of(TestValuesGenerator.{{{propertyNameUpper}}}_TEST_VALUE), test{{{className}}}.{{{getter}}}());
 		{{/nonOptional}}
-		test{{{className}}}.{{{setter}}}(new Integer(653));
+		test{{{className}}}.{{{setter}}}({{{testValue2}}});
 		{{#nonOptional}}
-		assertEquals(new Integer(653), test{{{className}}}.{{{getter}}}());
+		assertEquals({{{testValue2}}}, test{{{className}}}.{{{getter}}}());
 		{{/nonOptional}}
 		{{^nonOptional}}
-		assertEquals(Optional.of(new Integer(653)), test{{{className}}}.{{{getter}}}());
+		assertEquals(Optional.of({{{testValue2}}}), test{{{className}}}.{{{getter}}}());
 		{{/nonOptional}}
 	}
 	{{/integerProperties}}

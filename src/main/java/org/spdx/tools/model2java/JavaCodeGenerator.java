@@ -374,6 +374,18 @@ public class JavaCodeGenerator {
                 .collect(Collectors.toList());
         List<String> currentPropertyConstants = toProperties.stream().map(PropertyModel::getPropertyConstant)
                 .collect(Collectors.toList());
+        // an integer property must keep one Java type, since test values are shared across versions
+        List<String> integerTypes = Arrays.asList("Integer", "BigInteger");
+        for (PropertyModel from : fromProperties) {
+            for (PropertyModel to : toProperties) {
+                if (from.getPropertyConstant().equals(to.getPropertyConstant()) &&
+                        integerTypes.contains(from.getType()) && integerTypes.contains(to.getType()) &&
+                        !Objects.equals(from.getType(), to.getType())) {
+                    throw new ShaclToJavaException("Property " + from.getPropertyConstant() + " has Java type " +
+                            from.getType() + " in one spec version and " + to.getType() + " in another");
+                }
+            }
+        }
         missingPropertyConstants.removeAll(currentPropertyConstants);
         if (!missingPropertyConstants.isEmpty()) {
             for (PropertyModel prop : fromProperties) {

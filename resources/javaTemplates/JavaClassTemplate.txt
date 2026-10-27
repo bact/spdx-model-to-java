@@ -759,8 +759,8 @@ public {{#abstract}}abstract{{/abstract}} class {{{className}}} extends {{{super
 	 * gets the {{{propertyName}}}
 	 * @return the {{{propertyName}}}
 	 */
-	public @Nullable Integer {{{getter}}}() throws InvalidSPDXAnalysisException {
-		Optional<Integer> retval = getIntegerPropertyValue(SpdxConstantsV3.{{{propertyConstant}}});
+	public @Nullable {{{type}}} {{{getter}}}() throws InvalidSPDXAnalysisException {
+		Optional<{{{type}}}> retval = get{{{type}}}PropertyValue(SpdxConstantsV3.{{{propertyConstant}}});
 		return retval.isPresent() ? retval.get() : null;
 	}
 	{{/nonOptional}}
@@ -770,7 +770,7 @@ public {{#abstract}}abstract{{/abstract}} class {{{className}}} extends {{{super
 	 * @return the {{{propertyName}}}
 	 */
 	public Optional<{{{type}}}> {{{getter}}}() throws InvalidSPDXAnalysisException {
-		return getIntegerPropertyValue(SpdxConstantsV3.{{{propertyConstant}}});
+		return get{{{type}}}PropertyValue(SpdxConstantsV3.{{{propertyConstant}}});
 	}
 	{{/nonOptional}}
 	
@@ -787,12 +787,12 @@ public {{#abstract}}abstract{{/abstract}} class {{{className}}} extends {{{super
 		}
 		{{/required}}
 		{{#min}}
-		if (isStrict() && Objects.nonNull({{{propertyName}}}) && {{{propertyName}}} < {{{min}}}) {
+		if (isStrict() && Objects.nonNull({{{propertyName}}}) && {{{propertyName}}}.compareTo({{{minValue}}}) < 0) {
 			throw new InvalidSPDXAnalysisException("{{{propertyName}}} value " + {{{propertyName}}} + " is less than the minimum {{{min}}} in {{{className}}}");
 		}
 		{{/min}}
 		{{#max}}
-		if (isStrict() && Objects.nonNull({{{propertyName}}}) && {{{propertyName}}} > {{{max}}}) {
+		if (isStrict() && Objects.nonNull({{{propertyName}}}) && {{{propertyName}}}.compareTo({{{maxValue}}}) > 0) {
 			throw new InvalidSPDXAnalysisException("{{{propertyName}}} value " + {{{propertyName}}} + " is greater than the maximum {{{max}}} in {{{className}}}");
 		}
 		{{/max}}
@@ -1207,12 +1207,12 @@ public {{#abstract}}abstract{{/abstract}} class {{{className}}} extends {{{super
 			}
 			{{/required}}
 			{{#min}}
-			if (Objects.nonNull({{{propertyName}}}) && {{{propertyName}}} < {{{min}}}) {
+			if (Objects.nonNull({{{propertyName}}}) && {{{propertyName}}}.compareTo({{{minValue}}}) < 0) {
 				retval.add("{{{propertyName}}} value " + {{{propertyName}}} + " is less than the minimum {{{min}}} in {{{className}}}");
 			}
 			{{/min}}
 			{{#max}}
-			if (Objects.nonNull({{{propertyName}}}) && {{{propertyName}}} > {{{max}}}) {
+			if (Objects.nonNull({{{propertyName}}}) && {{{propertyName}}}.compareTo({{{maxValue}}}) > 0) {
 				retval.add("{{{propertyName}}} value " + {{{propertyName}}} + " is greater than the maximum {{{max}}} in {{{className}}}");
 			}
 			{{/max}}
@@ -1229,12 +1229,12 @@ public {{#abstract}}abstract{{/abstract}} class {{{className}}} extends {{{super
 			}
 			{{/required}}
 			{{#min}}
-			if ({{{propertyName}}}.isPresent() && {{{propertyName}}}.get() < {{{min}}}) {
+			if ({{{propertyName}}}.isPresent() && {{{propertyName}}}.get().compareTo({{{minValue}}}) < 0) {
 				retval.add("{{{propertyName}}} value " + {{{propertyName}}}.get() + " is less than the minimum {{{min}}} in {{{className}}}");
 			}
 			{{/min}}
 			{{#max}}
-			if ({{{propertyName}}}.isPresent() && {{{propertyName}}}.get() > {{{max}}}) {
+			if ({{{propertyName}}}.isPresent() && {{{propertyName}}}.get().compareTo({{{maxValue}}}) > 0) {
 				retval.add("{{{propertyName}}} value " + {{{propertyName}}}.get() + " is greater than the maximum {{{max}}} in {{{className}}}");
 			}
 			{{/max}}
@@ -1515,7 +1515,7 @@ public {{#abstract}}abstract{{/abstract}} class {{{className}}} extends {{{super
 		{{/booleanProperties}}
 		{{#integerProperties}}
 		{{^superSetter}}
-		protected Integer {{{propertyName}}} = null;
+		protected {{{type}}} {{{propertyName}}} = null;
 		{{/superSetter}}
 		{{/integerProperties}}
 		{{#doubleProperties}}

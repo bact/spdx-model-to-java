@@ -316,7 +316,7 @@ public class External{{{className}}} extends {{{className}}}  implements Individ
 	/**
 	 * @return the {{{propertyName}}}
 	 */
-	public @Nullable Integer {{{getter}}}() throws InvalidSPDXAnalysisException {
+	public @Nullable {{{type}}} {{{getter}}}() throws InvalidSPDXAnalysisException {
 		return null;
 	}
 	{{/nonOptional}}
